@@ -1,0 +1,73 @@
+---
+title: "GWES Tools"
+output: html_document
+---
+# GWES Tools for Genetic Data Meta-Analysis
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+## 1. Downloading Data from GEO Database with Accession Number: GSE67118
+```{r download_data}
+library(GEOquery)
+gse <- getGEO("GSE67118",GSEMatrix =TRUE, getGPL =TRUE)
+gse
+```
+```{r matrix_extraction,echo=FALSE}
+matrix <- exprs(gse[[1]])
+head(matrix,10)
+```
+We obtain the matrix of gene expression data from the GEO database.
+The matrix contains 20080 rows and 198 columns.
+The rows represent the genes and the columns represent the samples.
+__________ shows the first 100 rows and 100 columns below.
+```{r,echo=FALSE}
+matrix <- as.data.frame(matrix)
+head(matrix,10)
+```
+## Data Processing
+Once the data has been downloaded, we need to process the data to make the analysis, depending on the used tool and the type of data.
+the list of available R packages for the analysis of gene expression data is based on the following article:
+Forero DA. Available Software for Meta-analyses of Genome-wide Expression Studies. Curr Genomics. 2019;20(5):325-331. doi:10.2174/1389202920666190822113912
+
+Table of available R packages for the analysis of gene expression data
+
+| Package        | Platform     |
+|----------------|--------------|
+| RankProd       | Bioconductor |
+| OrderedList    | Bioconductor |
+| GeneMeta       | Bioconductor |
+| MetaArray      | Bioconductor |
+| crossmeta      | Bioconductor |
+| metaSeq        | Bioconductor |
+| metahdep       | Bioconductor |
+| RankAggreg     | CRAN         |
+| metaMA         | CRAN         |
+| metaPath       | CRAN         |
+| metaRNASeq     | CRAN         |
+| MetaIntegrator | CRAN         |
+| A-MADMAN       | Web          |
+| BayesPoolMicro | Web          |
+| MetaOmics      | Web          |
+| MTGDR          | Web          |
+| ImaGEO         | Web          |
+
+## 2. RankProd
+For the analysis of the data, we will try to use the RankProd package.
+```{r RankProd_test}
+library(RankProd)
+#For the analysis, we need to transform the data into a matrix and we need to create a class vector. given the fadct that all samples come from the same tissue, we will use the same class for all samples.
+dimension <- dim(matrix)
+class <- rep(1,dimension[2])
+```
+```{r RankProd_results}
+results <- RankProducts(matrix, class, logged = TRUE)
+```
+*NAs introducted by coercion to integer range* es un error que no se como solucionar.
+```{r MetaIntegrator_test}
+library(MetaIntegrator)
+axol_data <- getGEOData("GSE67118")
+```
